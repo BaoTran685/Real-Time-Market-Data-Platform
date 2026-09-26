@@ -42,6 +42,10 @@ class CoinbaseClient:
     def __exit__(self, exc_type, exc_value, traceback):
         self.session.close()
 
+    # _get_retry_delay(response, attempt) returns the time (in seconds) that we should delay before retry calling the API.
+    #  If the response does mention such field "retry_after", we would use it.
+    #  Otherwise we use exponential delay. The delay time grows as we retry more and more, and is capped
+    #   at 8 seconds.
     def _get_retry_delay(self, response: requests.Response | None, attempt: int) -> float:
         if (response is not None):
             retry_after = response.headers.get("Retry-After")
@@ -53,6 +57,13 @@ class CoinbaseClient:
         
         return min(2 ** attempt, 8)
 
+    # fetch_trade_page(after) calls the API endpoint and apply the after parameter (if applicable).
+    # The apply parameter is used to retrieve only the data after some point. For example, since a response may only contain up
+    #   a certain number of records, in the next API call we want to retrieve the records after the last record of the previous
+    #   API call.
+    # This function also implements retry so that if an API fails, for some certain status code of the response, we want to retry
+    #   it call it for some n number of times.
+    # The for-loop in this function is used for the retry only.
     def fetch_trade_page(self, after: str | None = None) -> TradePage:
         url = (
             f"{self.settings.base_url}"
@@ -63,7 +74,7 @@ class CoinbaseClient:
             "limit": self.settings.page_size
         }
 
-        if after is not None:
+        if (after is not None):
             params["after"] = after
 
         last_error: Exception | None = None
@@ -99,8 +110,8 @@ class CoinbaseClient:
                 except ValueError as exc:
                     raise APIClientError("API returned invalid JSON.") from exc
                 
-                if not isinstance(payload, list):
-                    raise APIClientError("Expected API response to be a JSON array.")
+                if (not isinstance(payload, list)):
+                    raise APIClientError("Expect API response to be a JSON array.")
 
                 next_cursor = response.headers.get("CB-AFTER")
                 return TradePage(trades=payload, next_cursor=next_cursor)
@@ -127,12 +138,16 @@ class CoinbaseClient:
 
         raise APIClientError("Request faield after maximum retries.") from last_error
 
+    # iter_trade_pages() iteratively calls an API endpoint to pull all of the data.
+    # The for-loop here is used to pull data in all pages. As a response may contain up to a certain number of records,
+    #   we need to make multiple API calls until we have retrieved all data.
     def iter_trade_pages(self) -> Iterator[tuple[int, list[dict[str, Any]]]]:
         cursor: str | None = None
 
         for page_number in range(1, self.settings.max_pages + 1):
             page = self.fetch_trade_page(after=cursor)
 
+            # iteratively return data
             yield page_number, page.trades
 
             if (not page.trades):
