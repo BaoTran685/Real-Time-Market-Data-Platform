@@ -23,14 +23,12 @@ class CoinbaseRestClient:
         params = {
             "limit": limit
         }
-
         if (after is not None):
             params["after"] = after
 
         try:
             response = self.session.get(url, params=params, timeout=self.timeout)
             response.raise_for_status()
-
         except requests.Timeout as error:
             logger.error("Coinbase request timed out")
             raise
@@ -63,9 +61,7 @@ class CoinbaseRestClient:
             for trade in trades:
                 if (trade.key in seen):
                     continue
-
                 seen.add(trade.key)
-
                 yield trade
 
             if (after is None):
