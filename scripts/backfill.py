@@ -1,7 +1,7 @@
 import logging
 from pathlib import Path
 
-from market_data.client import CoinbaseRestClient
+from market_data.client_rest import CoinbaseRestClient
 from market_data.config import Settings
 
 logging.basicConfig(
