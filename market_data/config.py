@@ -14,7 +14,7 @@ class Settings:
     def from_env(cls) -> "Settings":
         product_ids = tuple(
             product.strip()
-            for product in os.getenv("PRODUCT_IDS").split(",")
+            for product in os.getenv("PRODUCT_IDS", "BTC-USD").split(",")
         )
 
         return cls(
