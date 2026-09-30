@@ -45,12 +45,12 @@ class Trade:
 
         return cls(
             product_id = product_id,
-            trade_id = int(raw["traide_id"]),
+            trade_id = int(raw["trade_id"]),
             event_time = event_time,
             price = price,
             size = size,
             maker_side = raw["side"],
-            quote_notation = price * size
+            quote_notional = price * size
         )
 
     def to_dict(self) -> dict[str, str | int]:
