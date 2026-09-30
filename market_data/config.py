@@ -1,18 +1,23 @@
 from dataclasses import dataclass
-from pathlib import Path
+import os
 
-@dataclass(frozen = True)
+from dotenv import load_dotenv
+
+load_dotenv()
+
+@dataclass(frozen = True, slots=True)
 class Settings:
-    base_url: str = "https://api.exchange.coinbase.com"
+    rest_base_url: str
+    product_ids: tuple[str]
 
-    product_id: str = "BTC-USD"
+    @classmethod
+    def from_env(cls) -> "Settings":
+        product_ids = tuple(
+            product.strip()
+            for product in os.getenv("PRODUCT_IDS").split(",")
+        )
 
-    page_size: int = 100
-    max_pages: int = 10
-
-    request_timeout_seconds: float = 10.0
-    max_retries: int = 4
-
-    page_delay_seconds: float = 0.25
-
-    data_dir: Path = Path("data")
+        return cls(
+            rest_base_url=os.getenv("COINBASE_REST_BASE_URL", "https://api.exchange.coinbase.com"),
+            product_ids=product_ids
+        )
