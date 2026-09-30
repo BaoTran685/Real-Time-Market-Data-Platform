@@ -38,6 +38,9 @@ class Trade:
 
     @classmethod
     def from_coinbase(cls, raw: dict, product_id: str | None = None) -> "Trade":
+        # when pulling from REST API, product_id should be populated (not None)
+        # when pulling from WebSocket, product_id will be None and we need to get it
+        #   from the payload
         if (product_id is None):
             product_id = raw["product_id"]
 
