@@ -38,6 +38,9 @@ class Trade:
 
     @classmethod
     def from_coinbase(cls, raw: dict, product_id: str | None = None) -> "Trade":
+        if (product_id is None):
+            product_id = raw["product_id"]
+
         price = Decimal(raw["price"])
         size = Decimal(raw["size"])
 

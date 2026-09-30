@@ -8,7 +8,8 @@ load_dotenv()
 @dataclass(frozen = True, slots=True)
 class Settings:
     rest_base_url: str
-    product_ids: tuple[str]
+    websocket_url: str
+    product_ids: tuple[str, ...]
 
     @classmethod
     def from_env(cls) -> "Settings":
@@ -18,6 +19,7 @@ class Settings:
         )
 
         return cls(
-            rest_base_url=os.getenv("COINBASE_REST_BASE_URL", "https://api.exchange.coinbase.com"),
-            product_ids=product_ids
+            rest_base_url = os.getenv("COINBASE_REST_BASE_URL", "https://api.exchange.coinbase.com"),
+            websocket_url = os.getenv("COINBASE_WS_URL", "wss://ws-feed.exchange.coinbase.com"),
+            product_ids = product_ids
         )
