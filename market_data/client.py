@@ -50,4 +50,24 @@ class CoinbaseRestClient:
 
         return trades, next_cursor
 
-    
+    def iter_trades(self, product_id: str, max_pages: int = 5):
+        after = None
+        seen: set[tuple[str, int]] = set()
+
+        for _ in range(max_pages):
+            trades, after = self.get_trade_page(product_id = product_id, after = after)
+
+            if (not trades):
+                return
+
+            for trade in trades:
+                if (trade.key in seen):
+                    continue
+
+                seen.add(trade.key)
+
+                yield trade
+
+            if (after is None):
+                return
+        
