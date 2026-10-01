@@ -5,16 +5,12 @@ from market_data.models import Trade
 
 logging.basicConfig(
     level = logging.INFO,
-    format = (
-        "%(asctime)s "
-        "%(levelname)s "
-        "%(name)s - "
-        "%(message)s"
-    )
+    format = "%(asctime)s %(levelname)s %(name)s - %(message)s"
 )
 
 def handle_trade(trade: Trade) -> None:
-    logging.info(f"{trade.product_id} trade={trade.trade_id} price={trade.price} size={trade.size}")
+    logging.info("product=%s trade=%s price=%s size=%s",
+                trade.product_id, trade.trade_id, trade.price, trade.size)
 
 def main() -> None:
     settings = Settings.from_env()

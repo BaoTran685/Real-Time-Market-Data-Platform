@@ -6,12 +6,7 @@ from market_data.config import Settings
 
 logging.basicConfig(
     level = logging.INFO,
-    format = (
-        "%(asctime)s "
-        "%(levelname)s "
-        "%(name)s - "
-        "%(message)s"
-    )
+    format = "%(asctime)s %(levelname)s %(name)s - %(message)s"
 )
 
 OUTPUT_FILE_PATH = "data/backfill_trades.jsonl"
@@ -30,7 +25,7 @@ def main() -> None:
                 file.write(trade.to_json() + "\n")
                 cnt += 1
 
-    logging.info(f"Backfill complete: {cnt} trades")
+    logging.info("Backfill complete: %s trades", cnt)
 
 if (__name__ == "__main__"):
     main()
