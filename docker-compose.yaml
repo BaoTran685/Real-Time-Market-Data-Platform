@@ -26,5 +26,22 @@ services:
     volumes:
       - kafka-data:/var/lib/kafka/data
 
+  clickhouse:
+    image: clickhouse/clickhouse-server:26.9.5.2
+    container_name: market-clickhouse
+
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+    
+    environment:
+      CLICKHOUSE_DB: market
+      CLICKHOUSE_USER: admin
+      CLICKHOUSE_PASSWORD: password
+    
+    volumes:
+      - clickhouse-data:/var/lib/clickhouse
+
 volumes:
   kafka-data:
+  clickhouse-data:
