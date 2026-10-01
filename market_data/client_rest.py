@@ -1,3 +1,10 @@
+# REST API Client: We use this class to get historical data.
+# get_trade_page(): makes one request to the API and then give the returned body
+#   to Trade to parse.
+# iter_trades(): has a for-loop that performs pagination on the API results.
+#   In particular, each iteration invokes get_trade_page() to pull one page of data
+#   and the next iteration pulls the next page and so on.
+
 import logging
 import requests
 from market_data.models import Trade
@@ -27,16 +34,16 @@ class CoinbaseRestClient:
             params["after"] = after
 
         try:
-            response = self.session.get(url, params=params, timeout=self.timeout)
+            response = self.session.get(url, params = params, timeout = self.timeout)
             response.raise_for_status()
         except requests.Timeout as error:
             logger.error("Coinbase request timed out")
             raise
         except requests.HTTPError as error:
-            logger.error(f"Coinbase returned HTTP error: {error}")
+            logger.error("Coinbase returned HTTP error: %s", error)
             raise
         except requests.RequestException as error:
-            logger.error(f"Coinbase request failed: {error}")
+            logger.error("Coinbase request failed: %s", error)
             raise
 
         body = response.json()
