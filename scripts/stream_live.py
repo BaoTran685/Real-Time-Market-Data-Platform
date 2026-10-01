@@ -1,25 +1,32 @@
 import logging
+from market_data.kafka_producer import TradeProducer
 from market_data.client_ws import CoinbaseWebSocketClient
 from market_data.config import Settings
 from market_data.models import Trade
 
 logging.basicConfig(
-    level = logging.INFO,
+    level = logging.DEBUG,
     format = "%(asctime)s %(levelname)s %(name)s - %(message)s"
 )
 
-def handle_trade(trade: Trade) -> None:
-    logging.info("product=%s trade=%s price=%s size=%s",
-                trade.product_id, trade.trade_id, trade.price, trade.size)
-
 def main() -> None:
     settings = Settings.from_env()
+
+    producer = TradeProducer(
+        bootstrap_servers = settings.kafka_bootstrap_servers,
+        topic = settings.kafka_topic
+    )
+
     client = CoinbaseWebSocketClient(
         url = settings.websocket_url,
         product_ids = settings.product_ids,
-        on_trade = handle_trade
+        on_trade = producer.publish
     )
-    client.run_forever()
+
+    try:
+        client.run_forever()
+    finally:
+        producer.flush()
 
 if (__name__ == "__main__"):
     main()
