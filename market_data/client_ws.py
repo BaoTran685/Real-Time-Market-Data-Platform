@@ -1,3 +1,11 @@
+# WebSocket Client: We use this class to stream real-time data from Coinbase
+#   API to us. Then the data will be given to Trade to parse.
+# _on_open(): handles sending a subcription message.
+# _on_message(): handles receiving the payload and invokes the appropriate function on_trade.
+# _on_error(): handles logging the error.
+# _on_close(): handles logging that WebSocket has closed.
+# _run_forever(): handles connecting to WebSocket and holds the connection.
+
 import json
 import logging
 import time
@@ -25,7 +33,7 @@ class CoinbaseWebSocketClient:
         }
         ws.send(json.dumps(subcription))
 
-        logger.info(f"Subcribed to {self.product_ids}")
+        logger.info("Subcribed to %s", self.product_ids)
 
     def _on_message(self, ws: websocket.WebSocketApp, message: str) -> None:
         try:
@@ -35,15 +43,15 @@ class CoinbaseWebSocketClient:
                 trade = Trade.from_coinbase(payload)
                 self.on_trade(trade)
             else:
-                logger.info(f"Different type of message: {payload}")
+                logger.info("Different type of message: %s", payload)
         except (KeyError, ValueError) as error:
-            logger.warning(f"Skipping invalid message: {error}")
+            logger.warning("Skipping invalid message: %s", error)
 
     def _on_error(self, ws: websocket.WebSocketApp, error: Exception) -> None:
-        logger.error(f"WebSocket error: {error}")
+        logger.error("WebSocket error: %s", error)
 
     def _on_close(self, ws: websocket.WebSocketApp, status_code: str, message: str) -> None:
-        logger.warning(f"WebSocket closed: {status_code} {message}")
+        logger.warning("WebSocket closed: %s %s", status_code, message)
 
     def run_forever(self) -> None:
         backoff_seconds = 1
@@ -63,7 +71,7 @@ class CoinbaseWebSocketClient:
                 logger.info("Stopping WebSocket client")
                 return
 
-            logger.info(f"Reconnecting in {backoff_seconds} seconds")
+            logger.info("Reconnecting in %s seconds", backoff_seconds)
             time.sleep(backoff_seconds)
             backoff_seconds = min(backoff_seconds * 2, 60)
     
