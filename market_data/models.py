@@ -42,7 +42,7 @@ class Trade:
         # when pulling from WebSocket, product_id will be None and we need to get it
         #   from the payload
         if (product_id is None):
-            product_id = raw["product_id"]
+            product_id = raw.get("product_id", None)
 
         price = Decimal(raw["price"])
         size = Decimal(raw["size"])
