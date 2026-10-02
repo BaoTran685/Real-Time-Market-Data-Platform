@@ -3,3 +3,4 @@ python-dotenv
 websocket-client
 confluent-kafka
 clickhouse_connect
+pytest
