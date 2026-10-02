@@ -3,7 +3,7 @@ import time
 from confluent_kafka import Consumer
 
 from market_data.clickhouse_store import ClickHouseTradeStore
-from market_data.models import Trade
+from market_data.models import Trade, KafkaTradeRecord
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +23,7 @@ class TradeConsumer:
             "enable.auto.commit": False
         })
     
-    def _flush_batch(self, batch: list[Trade]) -> None:
+    def _flush_batch(self, batch: list[KafkaTradeRecord]) -> None:
         if (len(batch) == 0):
             return
 
@@ -35,7 +35,7 @@ class TradeConsumer:
 
     def run_forever(self) -> None:
         self.consumer.subscribe([self.topic])
-        batch: list[Trade] = []
+        batch: list[KafkaTradeRecord] = []
         last_flush = time.monotonic()
 
         try:
@@ -47,7 +47,13 @@ class TradeConsumer:
                         continue
 
                     trade = Trade.from_json(message.value().decode("utf-8"))
-                    batch.append(trade)
+                    record = KafkaTradeRecord(
+                        trade = trade,
+                        kafka_topic = message.topic(),
+                        kafka_partition = message.partition(),
+                        kafka_offset = message.offset()
+                    )
+                    batch.append(record)
 
                 now = time.monotonic()
                 is_batch_full = (len(batch) >= self.batch_size)

@@ -1,7 +1,7 @@
 from collections.abc import Iterable
 import clickhouse_connect
 
-from market_data.models import Trade
+from market_data.models import KafkaTradeRecord
 
 
 class ClickHouseTradeStore:
@@ -15,27 +15,31 @@ class ClickHouseTradeStore:
             password = password
         )
         self.column_names = [
-            "product_id", "trade_id", "event_time", "price", "size", "maker_side", "quote_notional"
+            "product_id", "trade_id", "event_time", "price", "size", "maker_side", "quote_notional",
+            "kafka_topic", "kafka_partition", "kafka_offset"
         ]
 
-    def insert(self, trades: Iterable[Trade]) -> None:
+    def insert(self, kafka_trade_records: Iterable[KafkaTradeRecord]) -> None:
         rows = []
-        for trade in trades:
+        for record in kafka_trade_records:
             rows.append([
-                trade.product_id,
-                trade.trade_id,
-                trade.event_time,
-                trade.price,
-                trade.size,
-                trade.maker_side,
-                trade.quote_notional
+                record.trade.product_id,
+                record.trade.trade_id,
+                record.trade.event_time,
+                record.trade.price,
+                record.trade.size,
+                record.trade.maker_side,
+                record.trade.quote_notional,
+                record.kafka_topic,
+                record.kafka_partition,
+                record.kafka_offset
             ])
 
         if (len(rows) == 0):
             return
 
         self.client.insert(
-            table = f"{self.database}.trades",
+            table = f"{self.database}.raw_trades",
             data = rows,
             column_names = self.column_names
         )

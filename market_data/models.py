@@ -86,4 +86,11 @@ class Trade:
             maker_side = raw["maker_side"],
             quote_notional = Decimal(raw["quote_notional"])
         )
-    
+
+@dataclass(frozen=True, slots=True)
+class KafkaTradeRecord:
+    trade: Trade
+
+    kafka_topic: str
+    kafka_partition: int
+    kafka_offset: int
