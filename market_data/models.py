@@ -87,6 +87,20 @@ class Trade:
             quote_notional = Decimal(raw["quote_notional"])
         )
 
+    def __eq__(self, other):
+        if (not isinstance(other, Trade)):
+            return False
+
+        return (
+            self.product_id == other.product_id
+            and self.trade_id == other.trade_id
+            and self.event_time == other.event_time
+            and self.price == other.price
+            and self.size == other.size
+            and self.maker_side == other.maker_side
+            and self.quote_notional == other.quote_notional
+        )
+
 @dataclass(frozen=True, slots=True)
 class KafkaTradeRecord:
     trade: Trade
