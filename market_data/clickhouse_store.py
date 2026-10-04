@@ -38,8 +38,9 @@ class ClickHouseTradeStore:
         if (len(rows) == 0):
             return
 
+        table = "raw_trades"
         self.client.insert(
-            table = f"{self.database}.raw_trades",
+            table = f"{self.database}.{table}",
             data = rows,
             column_names = self.column_names
         )
