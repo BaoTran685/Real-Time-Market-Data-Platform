@@ -33,13 +33,14 @@ class TradeConsumer:
 
         batch.clear()
 
-    def run_forever(self) -> None:
+    def run_forever(self, expected_trades: int | None = None) -> None:
         self.consumer.subscribe([self.topic])
         batch: list[KafkaTradeRecord] = []
-        last_flush = time.monotonic()
+        total_trades = 0
 
+        last_flush = time.monotonic()
         try:
-            while True:
+            while (expected_trades is not None and total_trades < expected_trades):
                 message = self.consumer.poll(timeout = 1.0)
                 if (message is not None):
                     if (message.error()):
@@ -60,11 +61,14 @@ class TradeConsumer:
                 is_flush_due = (len(batch) > 0 and now - last_flush >= self.flush_interval)
 
                 if (is_batch_full or is_flush_due):
+                    total_trades += len(batch)
                     self._flush_batch(batch)
                     last_flush = now
 
+            logger.info("Stopping consumer due to reaching limit of expected_trades")
+
         except KeyboardInterrupt:
-            logger.info("Stopping consumer")
+            logger.info("Stopping consumer due to Keyboard Interrupt")
 
         finally:
             self._flush_batch(batch)
