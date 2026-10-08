@@ -4,3 +4,5 @@
 
 SELECT COUNT() FROM raw_trades;
 SELECT COUNT() FROM clean_trades;
+
+-- SELECT * FROM clean_trades;
