@@ -44,12 +44,12 @@ def benchmark_consumer() -> None:
     settings = Settings.from_env()
 
     store = ClickHouseTradeStore(
-            host = settings.clickhouse_host,
-            port = settings.clickhouse_port,
-            database = settings.clickhouse_database_benchmark,
-            user = settings.clickhouse_user,
-            password = settings.clickhouse_password
-        )
+        host = settings.clickhouse_host,
+        port = settings.clickhouse_port,
+        database = settings.clickhouse_database_benchmark,
+        user = settings.clickhouse_user,
+        password = settings.clickhouse_password
+    )
     store.truncate()
     consumer = TradeConsumer(
         bootstrap_server = settings.kafka_bootstrap_servers,
