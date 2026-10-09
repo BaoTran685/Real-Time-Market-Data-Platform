@@ -15,7 +15,7 @@ def main() -> None:
     store = ClickHouseTradeStore(
         host = settings.clickhouse_host,
         port = settings.clickhouse_port,
-        database = settings.clickhouse_database,
+        database = settings.clickhouse_database_prod,
         user = settings.clickhouse_user,
         password = settings.clickhouse_password
     )
@@ -24,7 +24,7 @@ def main() -> None:
         bootstrap_server = settings.kafka_bootstrap_servers,
         topic = settings.kafka_topic,
         store = store,
-        group_id = "clickhouse-write",
+        group_id = "prod-clickhouse-write",
         batch_size = 500,
         flush_interval = 10
     )

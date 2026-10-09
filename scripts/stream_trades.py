@@ -14,7 +14,7 @@ def main() -> None:
 
     producer = TradeProducer(
         bootstrap_servers = settings.kafka_bootstrap_servers,
-        topic = settings.kafka_topic
+        topic = settings.kafka_topic_prod
     )
 
     client = CoinbaseWebSocketClient(
