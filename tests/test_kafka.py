@@ -1,6 +1,7 @@
 import random
 from datetime import datetime, timedelta, timezone
 
+from market_data.config import Settings
 from market_data.models import Trade
 from market_data.kafka_producer import TradeProducer
 from market_data.kafka_consumer import TradeConsumer
@@ -31,19 +32,12 @@ def get_random_trade(trade_id: int) -> Trade:
 def test_kafka_produce_consume():
     number_of_trades = 10_000
 
-    bootstrap_servers = "localhost:9092"
-    topic = "test_kafka_produce_consume"
-
-    clickhouse_host = "localhost"
-    clickhouse_port = "8123"
-    clickhouse_database = "test"
-    clickhouse_user = "admin"
-    clickhouse_password = "password"
+    settings = Settings.from_env()
 
     # produce
     producer = TradeProducer(
-        bootstrap_servers = bootstrap_servers,
-        topic = topic
+        bootstrap_servers = settings.kafka_bootstrap_servers,
+        topic = settings.kafka_topic_test
     )
     
     producer_trades: list[Trade] = []
@@ -57,19 +51,19 @@ def test_kafka_produce_consume():
 
     # consume
     store = ClickHouseTradeStore(
-        host = clickhouse_host,
-        port = clickhouse_port,
-        database = clickhouse_database,
-        user = clickhouse_user,
-        password = clickhouse_password
+        host = settings.clickhouse_host,
+        port = settings.clickhouse_port,
+        database = settings.clickhouse_database_test,
+        user = settings.clickhouse_user,
+        password = settings.clickhouse_password
     )
     store.truncate()
 
     consumer = TradeConsumer(
-        bootstrap_server = bootstrap_servers,
-        topic = topic,
+        bootstrap_server = settings.kafka_bootstrap_servers,
+        topic = settings.kafka_topic_test,
         store = store,
-        group_id = "test_kafka",
+        group_id = "test-clickhouse-write",
         batch_size = 500,
         flush_interval = 10.0
     )
