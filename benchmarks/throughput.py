@@ -87,3 +87,11 @@ def benchmark() -> None:
 if (__name__ == "__main__"):
 
     benchmark()
+
+
+# After testing, I find out that the bottle neck is in the consumer pipeline.
+#   The consumer pulls data from kafka and then writes to ClickHouse database.
+# Let's discover if the bottle neck is from polling from kafka or from writing to ClickHouse.
+
+# Producer throughput: ~180K events/sec
+# Consumer throughput: ~3K events/sec
