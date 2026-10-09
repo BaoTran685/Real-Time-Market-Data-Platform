@@ -37,7 +37,7 @@ def benchmark_clickhouse_insert() -> None:
     elapsed = end - start
     throughput = number_of_trades / elapsed
 
-    print(f"Random events pool -> Producer -> Kafka")
+    print(f"Random events pool -> ClickHouse")
     print(f"Events: {number_of_trades:,.0f}")
     print(f"Elapsed: {elapsed:.2f}s")
     print(f"Throughput: {throughput:,.2f} events/sec")

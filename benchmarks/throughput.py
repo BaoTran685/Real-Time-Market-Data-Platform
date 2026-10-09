@@ -9,7 +9,7 @@ from market_data.clickhouse_store import ClickHouseTradeStore
 
 
 def benchmark_producer() -> None:
-    number_of_trades = 10_000
+    number_of_trades = 1_000_000
     settings = Settings.from_env()
 
     producer = TradeProducer(
@@ -40,7 +40,7 @@ def benchmark_producer() -> None:
 
 
 def benchmark_consumer() -> None:
-    number_of_trades = 10_000
+    number_of_trades = 1_000_000
     settings = Settings.from_env()
 
     store = ClickHouseTradeStore(
@@ -76,7 +76,7 @@ def benchmark_consumer() -> None:
 
 
 def benchmark() -> None:
-    number_of_iterations = 5
+    number_of_iterations = 10
 
     for i in range(number_of_iterations):
         print(f"Iteration: {i}")
