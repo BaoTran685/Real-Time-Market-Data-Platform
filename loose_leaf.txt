@@ -1,0 +1,8 @@
+docker compose up -d
+docker exec -it market-kafka kafka-topics --bootstrap-server localhost:9092 --list
+docker exec -it market-kafka kafka-console-consumer --bootstrap-server localhost:9092 --topic raw_trades --from-beginning
+docker exec -it market-kafka kafka-topics --bootstrap-server localhost:9092 --delete --topic test_kafka_produce_consume
+
+docker exec -it market-clickhouse clickhouse-client --user admin --password password --database market --query "SHOW TABLES"
+docker exec -i market-clickhouse clickhouse-client --user admin --password password --database market --multiquery < sql/schema.sql
+
