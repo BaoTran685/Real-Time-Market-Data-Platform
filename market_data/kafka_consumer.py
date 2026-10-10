@@ -33,37 +33,44 @@ class TradeConsumer:
 
         batch.clear()
 
-    def run_forever(self, expected_trades: int | None = None) -> None:
+    def run_forever(self, expected_trade_count: int | None = None) -> None:
         self.consumer.subscribe([self.topic])
+        
         batch: list[KafkaTradeRecord] = []
-        total_trades = 0
+        trade_count = 0
 
         last_flush = time.monotonic()
         try:
-            while (expected_trades is not None and total_trades < expected_trades):
+            while (True):
                 message = self.consumer.poll(timeout = 1.0)
-                if (message is not None):
-                    if (message.error()):
-                        logger.error("Kafka error: %s", message.error())
-                        continue
-
-                    trade = Trade.from_json(message.value().decode("utf-8"))
-                    record = KafkaTradeRecord(
-                        trade = trade,
-                        kafka_topic = message.topic(),
-                        kafka_partition = message.partition(),
-                        kafka_offset = message.offset()
-                    )
-                    batch.append(record)
+                
+                if (not message):
+                    continue
+                
+                if (message.error()):
+                    logger.error("Kafka consumer error: %s", message.error())
+                    continue
+                        
+                trade = Trade.from_json(message.value().decode("utf-8"))
+                record = KafkaTradeRecord(
+                    trade = trade,
+                    kafka_topic = message.topic(),
+                    kafka_partition = message.partition(),
+                    kafka_offset = message.offset()
+                )
+                batch.append(record)
 
                 now = time.monotonic()
                 is_batch_full = (len(batch) >= self.batch_size)
-                is_flush_due = (len(batch) > 0 and now - last_flush >= self.flush_interval)
+                is_flush_due = ((len(batch) > 0) and (now - last_flush >= self.flush_interval))
 
                 if (is_batch_full or is_flush_due):
-                    total_trades += len(batch)
+                    trade_count += len(batch)
                     self._flush_batch(batch)
                     last_flush = now
+                
+                if (expected_trade_count is not None and trade_count >= expected_trade_count):
+                    break
 
             logger.info("Stopping consumer due to reaching limit of expected_trades")
 

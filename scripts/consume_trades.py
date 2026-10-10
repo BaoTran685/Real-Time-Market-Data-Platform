@@ -22,7 +22,7 @@ def main() -> None:
 
     consumer = TradeConsumer(
         bootstrap_server = settings.kafka_bootstrap_servers,
-        topic = settings.kafka_topic,
+        topic = settings.kafka_topic_prod,
         store = store,
         group_id = "prod-clickhouse-write",
         batch_size = 500,
