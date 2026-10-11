@@ -5,7 +5,7 @@ from market_data.config import Settings
 from market_data.models import Trade
 
 logging.basicConfig(
-    level = logging.DEBUG,
+    level = logging.INFO,
     format = "%(asctime)s %(levelname)s %(name)s - %(message)s"
 )
 

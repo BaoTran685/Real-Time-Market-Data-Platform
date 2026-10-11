@@ -1,4 +1,5 @@
 import logging
+import json
 from confluent_kafka import Producer
 from market_data.models import Trade
 
@@ -16,7 +17,9 @@ class TradeProducer:
         if (error is not None):
             logger.error("Kafka delivery failed: %s", error)
         else:
-            logger.debug("Delivered topic=%s partition=%s offset=%s",
+            payload = json.loads(message.value().decode("utf-8"))
+            logger.info("Delivered trade_id=%s, product_id=%s, topic=%s partition=%s offset=%s",
+                         payload.get("trade_id"), payload.get("product_id"),
                          message.topic(), message.partition(), message.offset())
 
     def publish(self, trade: Trade) -> None:

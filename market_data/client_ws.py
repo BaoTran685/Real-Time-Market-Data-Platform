@@ -40,10 +40,16 @@ class CoinbaseWebSocketClient:
             payload = json.loads(message)
 
             if (payload.get("type") == "match"):
+                logger.debug("Receive match message: trade_id=%s, product_id=%s",
+                             payload.get("trade_id"), payload.get("product_id"))
                 trade = Trade.from_coinbase(payload)
                 self.on_trade(trade)
+            elif (payload.get("type") == "heartbeat"):
+                logger.debug("Receive heartbeat message: last_trade_id=%s, product_id=%s",
+                             payload.get("last_trade_id"), payload.get("product_id"))
             else:
-                logger.info("Different type of message: %s", payload)
+                logger.warning("Different type of message: %s", payload)
+                
         except (KeyError, ValueError) as error:
             logger.warning("Skipping invalid message: %s", error)
 
