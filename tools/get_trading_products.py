@@ -66,8 +66,5 @@ if (__name__ == "__main__"):
     ranked_products = get_ranked_products()
 
     for rank, product in enumerate(ranked_products, start=1):
-        print(
-            f"{rank:3}. "
-            f"{product["product_id"]:12} "
-            f"${product["usd_volume_24h"]:,.2f}"
-        )
+        print(f"{rank:3}. {product["product_id"]:12} ${product["usd_volume_24h"]:,.2f}")
+
